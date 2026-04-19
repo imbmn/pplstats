@@ -375,7 +375,6 @@
     <div class="export-bar">
       <span class="export-label">Export</span>
       <button class="export-btn" id="btn-pdf-leaderboard" onclick="exportPDF('leaderboard')"><span class="eicon">📄</span> Save PDF</button>
-      <button class="export-btn" id="btn-docx-leaderboard" onclick="exportDOCX('leaderboard')"><span class="eicon">📝</span> Save DOCX</button>
       <button class="export-btn" id="btn-jpeg-leaderboard" onclick="exportJPEG('leaderboard')"><span class="eicon">🖼</span> Save JPEG</button>
     </div>
     <div class="lb-cols">
@@ -423,7 +422,6 @@
     <div class="export-bar">
       <span class="export-label">Export</span>
       <button class="export-btn" id="btn-pdf-players" onclick="exportPDF('players')"><span class="eicon">📄</span> Save PDF</button>
-      <button class="export-btn" id="btn-docx-players" onclick="exportDOCX('players')"><span class="eicon">📝</span> Save DOCX</button>
       <button class="export-btn" id="btn-jpeg-players" onclick="exportJPEG('players')"><span class="eicon">🖼</span> Save JPEG</button>
     </div>
     <div id="players-tables-container"></div>
@@ -467,7 +465,6 @@
     <div class="export-bar">
       <span class="export-label">Export</span>
       <button class="export-btn" id="btn-pdf-heroes" onclick="exportPDF('heroes')"><span class="eicon">📄</span> Save PDF</button>
-      <button class="export-btn" id="btn-docx-heroes" onclick="exportDOCX('heroes')"><span class="eicon">📝</span> Save DOCX</button>
       <button class="export-btn" id="btn-jpeg-heroes" onclick="exportJPEG('heroes')"><span class="eicon">🖼</span> Save JPEG</button>
     </div>
     <div class="team-table-wrap">
@@ -487,7 +484,6 @@
     <div class="export-bar">
       <span class="export-label">Export</span>
       <button class="export-btn" id="btn-pdf-mvp" onclick="exportPDF('mvp')"><span class="eicon">📄</span> Save PDF</button>
-      <button class="export-btn" id="btn-docx-mvp" onclick="exportDOCX('mvp')"><span class="eicon">📝</span> Save DOCX</button>
       <button class="export-btn" id="btn-jpeg-mvp" onclick="exportJPEG('mvp')"><span class="eicon">🖼</span> Save JPEG</button>
     </div>
     <div id="mvp-board" class="mvp-grid"></div>
@@ -500,7 +496,6 @@
     <div class="export-bar">
       <span class="export-label">Export</span>
       <button class="export-btn" id="btn-pdf-awards" onclick="exportPDF('awards')"><span class="eicon">📄</span> Save PDF</button>
-      <button class="export-btn" id="btn-docx-awards" onclick="exportDOCX('awards')"><span class="eicon">📝</span> Save DOCX</button>
       <button class="export-btn" id="btn-jpeg-awards" onclick="exportJPEG('awards')"><span class="eicon">🖼</span> Save JPEG</button>
     </div>
     <div id="awards-board" class="award-grid"></div>
@@ -514,7 +509,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 
 <script>
 /* ─── DATA ─────────────────────────────────────── */
@@ -1399,194 +1393,104 @@ function renderLeaderboard(){
   }).join('');
 }
 
+
 /* ─── EXPORT ────────────────────────────────────── */
+
+// Helper to grab the right element container
+function getExportElement(tab) {
+  if(tab === 'players') return document.getElementById('players-tables-container');
+  if(tab === 'heroes') return document.getElementById('tab-heroes'); // Captures the whole tab to avoid horizontal scroll cutoff
+  if(tab === 'mvp') return document.getElementById('mvp-board');
+  if(tab === 'awards') return document.getElementById('awards-board');
+  return document.getElementById('leaderboard');
+}
+
 async function exportJPEG(tab){
-  const btn=document.getElementById(`btn-jpeg-${tab}`); btn.classList.add('loading'); btn.textContent='Capturing...';
-  try{
-    let elId = 'leaderboard';
-    if(tab==='players') elId = 'players-tables-container';
-    if(tab==='heroes') elId = 'heroes-table';
-    if(tab==='mvp') elId = 'mvp-board';
-    if(tab==='awards') elId = 'awards-board';
-    const el = document.getElementById(elId);
-    const canvas = await html2canvas(el,{backgroundColor:'#0a0a0f',scale:2,useCORS:true});
-    const link = document.createElement('a'); link.download=`PPL_${tab.toUpperCase()}.jpg`;
-    link.href=canvas.toDataURL('image/jpeg',0.95); link.click(); showToast('JPEG saved!');
-  }catch(e){showToast('Export failed');}
-  btn.classList.remove('loading'); btn.innerHTML='<span class="eicon">🖼</span> Save JPEG';
+  const btn = document.getElementById(`btn-jpeg-${tab}`); 
+  btn.classList.add('loading'); 
+  btn.textContent = 'Capturing...';
+  
+  try {
+    const el = getExportElement(tab);
+    
+    // Using scrollWidth/scrollHeight ensures we capture the full un-cropped element
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#0a0a0f',
+      scale: 2,
+      useCORS: true,
+      windowWidth: el.scrollWidth,
+      windowHeight: el.scrollHeight
+    });
+    
+    const link = document.createElement('a'); 
+    link.download = `PPL_${tab.toUpperCase()}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.95); 
+    link.click(); 
+    showToast('JPEG saved!');
+  } catch(e) {
+    console.error(e);
+    showToast('Export failed');
+  }
+  
+  btn.classList.remove('loading'); 
+  btn.innerHTML = '<span class="eicon">🖼</span> Save JPEG';
 }
 
 async function exportPDF(tab){
-  const btn=document.getElementById(`btn-pdf-${tab}`); btn.classList.add('loading'); btn.textContent='Generating...';
-  try{
-    const {jsPDF} = window.jspdf;
+  const btn = document.getElementById(`btn-pdf-${tab}`); 
+  btn.classList.add('loading'); 
+  btn.textContent = 'Generating...';
+  
+  try {
+    const { jsPDF } = window.jspdf;
+    const el = getExportElement(tab);
     
-    if (tab === 'leaderboard') {
-      const standings=getStandings(); 
-      const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-      const BG='#0a0a0f',SURFACE='#13131a',ACCENT='#c8f135',W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();
-      doc.setFillColor(BG);doc.rect(0,0,W,H,'F');
-      doc.setFillColor(SURFACE);doc.roundedRect(8,8,W-16,28,3,3,'F');
-      doc.setTextColor(ACCENT);doc.setFontSize(22);doc.setFont('helvetica','bold');doc.text('PANUKZ PREMIER LEAGUE',16,22);
-      doc.setTextColor('#6b6b80');doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text('Standings — April 20–30, 2026',16,30);
-      const cols=['#','Team','MP','W','L','MW','ML','NW','WR%','PTS'],cw=[12,56,14,14,14,14,14,16,18,18];
-      let x=12,y=44;
-      doc.setFillColor('#1c1c27');doc.rect(8,y-5,W-16,8,'F');
-      doc.setTextColor('#6b6b80');doc.setFontSize(8);doc.setFont('helvetica','bold');
-      cols.forEach((c,i)=>{const a=i<=1?'left':'right';doc.text(c,a==='right'?x+cw[i]:x,y,{align:a});x+=cw[i];});
-      y+=6;
-      standings.forEach((t,idx)=>{
-        const rb=idx===0?'#0f1a00':idx===1?'#161616':idx===2?'#140e00':SURFACE;
-        doc.setFillColor(rb);doc.roundedRect(8,y-4,W-16,9,1.5,1.5,'F');
-        const nw=t.mw-t.ml,tg=t.mw+t.ml,wr=tg>0?Math.round((t.mw/tg)*100):0;
-        const vals=[t.rank,t.name,t.mp,t.w,t.l,t.mw,t.ml,(nw>=0?'+':'')+nw,wr+'%',t.pts];
-        x=12;
-        vals.forEach((v,i)=>{
-          const a=i<=1?'left':'right';
-          let c='#f0f0f5';
-          if(i===0)c=idx===0?ACCENT:idx===1?'#c8c8c8':idx===2?'#ba7517':'#6b6b80';
-          if(i===3)c='#9ccc50';if(i===4)c='#f08080';if(i===5)c='#9ccc50';if(i===6)c='#f08080';
-          if(i===7)c=nw>0?'#9ccc50':nw<0?'#f08080':'#6b6b80';if(i===8)c='#efb952';if(i===9)c=ACCENT;
-          doc.setTextColor(c);doc.setFontSize(i===9||i===0?10:8.5);doc.setFont('helvetica',i===9||i===0?'bold':'normal');
-          doc.text(String(v),a==='right'?x+cw[i]:x,y+1,{align:a});x+=cw[i];
-        });
-        y+=11;
-      });
-      doc.setTextColor('#6b6b80');doc.setFontSize(7.5);
-      doc.text('Points: 2-0=3pts | 2-1=2pts | 1-2=1pt | 0-2=0pts',12,H-8);
-      doc.text(`Generated ${new Date().toLocaleDateString()}`,W-12,H-8,{align:'right'});
-      doc.save('PPL_Leaderboard.pdf');
-    } else {
-      let elId = 'players-tables-container';
-      if(tab==='heroes') elId = 'heroes-table';
-      if(tab==='mvp') elId = 'mvp-board';
-      if(tab==='awards') elId = 'awards-board';
-      const el = document.getElementById(elId);
-      const canvas = await html2canvas(el, {backgroundColor: '#0a0a0f', scale: 2, useCORS: true});
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const doc = new jsPDF({orientation: canvas.width > canvas.height ? 'landscape' : 'portrait', unit: 'mm', format: 'a4'});
-      const imgProps = doc.getImageProperties(imgData);
-      const pdfWidth = doc.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
-      doc.setFillColor('#0a0a0f'); doc.rect(0, 0, pdfWidth, Math.max(pdfHeight, doc.internal.pageSize.getHeight()), 'F');
-      doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      doc.save(`PPL_${tab.toUpperCase()}.pdf`);
+    const canvas = await html2canvas(el, {
+      backgroundColor: '#0a0a0f',
+      scale: 2, 
+      useCORS: true,
+      windowWidth: el.scrollWidth,
+      windowHeight: el.scrollHeight
+    });
+    
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    
+    // Calculate how tall the image will be inside the PDF
+    const imgProps = pdf.getImageProperties(imgData);
+    const totalHeightMm = (imgProps.height * pdfWidth) / imgProps.width;
+    
+    let heightLeft = totalHeightMm;
+    let position = 0;
+    
+    // Render First Page
+    pdf.setFillColor(10, 10, 15); // #0a0a0f equivalent
+    pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalHeightMm);
+    heightLeft -= pdfHeight;
+    
+    // Render Additional Pages if the content is too long
+    while (heightLeft > 0) {
+      position = position - pdfHeight; // Shift the image up
+      pdf.addPage();
+      pdf.setFillColor(10, 10, 15);
+      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalHeightMm);
+      heightLeft -= pdfHeight;
     }
+    
+    pdf.save(`PPL_${tab.toUpperCase()}.pdf`);
     showToast('PDF saved!');
-  }catch(e){console.error(e);showToast('Export failed');}
-  btn.classList.remove('loading'); btn.innerHTML='<span class="eicon">📄</span> Save PDF';
-}
-
-async function exportDOCX(tab){
-  const btn=document.getElementById(`btn-docx-${tab}`); btn.classList.add('loading'); btn.textContent='Building...';
-  try{
-    const {Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, AlignmentType, WidthType, BorderStyle, ShadingType} = docx;
-    const AH = 'C8F135';
-    let children = [];
-
-    if (tab === 'leaderboard') {
-      const standings=getStandings();
-      children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:'Panukz Premier League - Standings',bold:true,size:48,color:AH})]}));
-      children.push(new Paragraph({text:''}));
-
-      const hCells=['#','Team','MP','W','L','MW','ML','NW','WR%','PTS'].map(h=>new TableCell({shading:{type:ShadingType.SOLID,color:'1C1C27'},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:h,bold:true,color:'9999AA',size:16})]})]}));
-      const dRows=standings.map((t,idx)=>{
-        const nw=t.mw-t.ml,tg=t.mw+t.ml,wr=tg>0?Math.round((t.mw/tg)*100):0;
-        const bg=idx===0?'0F1A00':idx===1?'161616':idx===2?'140E00':'13131A';
-        const vals=[
-          {v:String(t.rank),c:idx===0?AH:idx===1?'C8C8C8':idx===2?'BA7517':'888899'},
-          {v:t.name,c:'F0F0F5'},{v:String(t.mp),c:'888899'},{v:String(t.w),c:'9CCC50'},
-          {v:String(t.l),c:'F08080'},{v:String(t.mw),c:'9CCC50'},{v:String(t.ml),c:'F08080'},
-          {v:(nw>=0?'+':'')+nw,c:nw>0?'9CCC50':nw<0?'F08080':'888899'},{v:wr+'%',c:'EFB952'},{v:String(t.pts),c:AH}
-        ];
-        return new TableRow({children:vals.map(cell=>new TableCell({shading:{type:ShadingType.SOLID,color:bg},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:cell.v,color:cell.c,bold:cell.c===AH,size:18})]})]}))});
-      });
-      children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({children:hCells}),...dRows]}));
-
-    } else if (tab === 'players') {
-      children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:'Panukz Premier League - Players',bold:true,size:48,color:AH})]}));
-      children.push(new Paragraph({text:''}));
-
-      TEAMS_LIST.forEach(team => {
-        let teamRows = allPlayerRowsData.filter(r => r.team === team);
-        if (!teamRows.length) return;
-        
-        children.push(new Paragraph({heading:HeadingLevel.HEADING_2, children:[new TextRun({text: team, bold:true, size: 28, color:'F0F0F5'})]}));
-        
-        const hCells=['#','Player','GP','K','D','A','KDA','Grade','TF%','HDmg','TDmg','GPM','DTaken','Turtle','Lord','CK'].map(h=>new TableCell({shading:{type:ShadingType.SOLID,color:'1C1C27'},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:h,bold:true,color:'9999AA',size:14})]})]}));
-        
-        const dRows = teamRows.map((r, i) => {
-          const vals = [
-            {v:String(i+1), c:'888899'}, {v:r.name, c:'F0F0F5'}, {v:String(r.gp), c:'888899'},
-            {v:String(r.kill), c:'9CCC50'}, {v:String(r.death), c:'F08080'}, {v:String(r.assist), c:'6FB3F0'},
-            {v:r.kda.toFixed(2), c:'C8F135'}, {v:(r.grade||0).toFixed(1), c:'EFB952'}, {v:(r.tfp||0).toFixed(1)+'%', c:'B0ACEC'},
-            {v:numFmt(r.hdmg), c:'E890B2'}, {v:numFmt(r.tdmg), c:'EFB952'}, {v:numFmt(r.gpm), c:'5ECFAA'},
-            {v:numFmt(r.dtaken), c:'E88180'}, {v:String(r.turtle), c:'6FB3F0'}, {v:String(r.lord), c:'BA7517'}, {v:String(r.ck), c:'C8F135'}
-          ];
-          return new TableRow({children:vals.map(cell=>new TableCell({shading:{type:ShadingType.SOLID,color:'13131A'},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:cell.v,color:cell.c,size:14})]})]}))});
-        });
-
-        children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({children:hCells}),...dRows]}));
-        children.push(new Paragraph({text:''}));
-      });
-      
-    } else if (tab === 'heroes') {
-      children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:'Panukz Premier League - Heroes Stats',bold:true,size:48,color:AH})]}));
-      children.push(new Paragraph({children:[new TextRun({text:`Overall Games: ${overallGames}`, color:'888899', size: 18})]}));
-      children.push(new Paragraph({text:''}));
-
-      const hCells=['#','Hero','Role','Picks','Bans','Wins','Losses','PR%','BR%','CR%','WR%'].map(h=>new TableCell({shading:{type:ShadingType.SOLID,color:'1C1C27'},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:h,bold:true,color:'9999AA',size:14})]})]}));
-      
-      const dRows = allHeroRowsData.map((r, i) => {
-        const vals = [
-          {v:String(i+1), c:'888899'}, {v:r.name, c:'F0F0F5'}, {v:r.role, c:'888899'},
-          {v:String(r.picks), c:'F0F0F5'}, {v:String(r.bans), c:'F08080'}, {v:String(r.wins), c:'9CCC50'}, {v:String(r.losses), c:'F08080'},
-          {v:r.pr.toFixed(1)+'%', c:'B0ACEC'}, {v:r.br.toFixed(1)+'%', c:'F08080'}, {v:r.cr.toFixed(1)+'%', c:'C8F135'}, {v:r.wr.toFixed(1)+'%', c:'EFB952'}
-        ];
-        return new TableRow({children:vals.map(cell=>new TableCell({shading:{type:ShadingType.SOLID,color:'13131A'},borders:{top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}},children:[new Paragraph({alignment:AlignmentType.CENTER,children:[new TextRun({text:cell.v,color:cell.c,size:14})]})]}))});
-      });
-      children.push(new Table({width:{size:100,type:WidthType.PERCENTAGE},rows:[new TableRow({children:hCells}),...dRows]}));
-
-    } else if (tab === 'mvp') {
-      children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:'Panukz Premier League - MVP Rankings',bold:true,size:48,color:AH})]}));
-      children.push(new Paragraph({children:[new TextRun({text:'Scores based on KDA (30%), Grades (40%), and Teamfight Participation (30%). Max score is 100%.', color:'888899', size: 18})]}));
-      children.push(new Paragraph({text:''}));
-
-      mvpDataGlobal.forEach((m, i) => {
-        children.push(new Paragraph({
-          children: [new TextRun({text: `#${i+1} ${m.name} (${m.team}) - Score: ${m.totalScore.toFixed(1)}%`, bold: true, size: 28, color: i===0?'C8F135':i===1?'C8C8C8':i===2?'BA7517':'F0F0F5'})]
-        }));
-        children.push(new Paragraph({
-          children: [new TextRun({text: `   KDA: ${m.kda.toFixed(2)} | Grade: ${m.avgGrade.toFixed(1)} | TF: ${m.avgTfp.toFixed(1)}%`, size: 20, color: '888899'})]
-        }));
-        children.push(new Paragraph({text:''}));
-      });
-
-    } else if (tab === 'awards') {
-      children.push(new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:'Panukz Premier League - Special Awards',bold:true,size:48,color:AH})]}));
-      children.push(new Paragraph({text:''}));
-
-      awardsDataGlobal.forEach(a => {
-        if (!a.p || a.val === -1) return;
-        children.push(new Paragraph({
-          children: [
-            new TextRun({text: `${a.title}: `, bold: true, size: 24, color: '888899'}),
-            new TextRun({text: `${a.fmt(a.val)} `, bold: true, size: 24, color: AH}),
-            new TextRun({text: `— ${a.p.name} (${a.p.team})`, size: 24, color: 'F0F0F5'})
-          ]
-        }));
-        children.push(new Paragraph({text:''}));
-      });
-    }
-
-    const doc2=new Document({sections:[{properties:{},children:children}]});
-    const blob=await Packer.toBlob(doc2);
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=`PPL_${tab.toUpperCase()}.docx`;a.click();URL.revokeObjectURL(url);
-    showToast('DOCX saved!');
-  }catch(e){console.error(e);showToast('Export failed');}
-  btn.classList.remove('loading'); btn.innerHTML='<span class="eicon">📝</span> Save DOCX';
+  } catch(e) {
+    console.error(e);
+    showToast('Export failed');
+  }
+  
+  btn.classList.remove('loading'); 
+  btn.innerHTML = '<span class="eicon">📄</span> Save PDF';
 }
 
 /* ─── FILTERS ────────────────────────────────────── */
