@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #090014; /* Deep space dark purple */
-    --surface: rgba(15, 0, 30, 0.75); /* Semi-transparent deep purple */
-    --surface2: rgba(30, 5, 50, 0.75); /* Slightly lighter transparent purple */
-    --border: rgba(226, 51, 255, 0.15); /* Slight magenta tint to borders */
-    --accent: #e233ff; /* Glowing electric magenta */
+    --bg: #090014;
+    --surface: rgba(15, 0, 30, 0.75);
+    --surface2: rgba(30, 5, 50, 0.75);
+    --border: rgba(226, 51, 255, 0.15);
+    --accent: #e233ff;
     --text: #f0f0f5;
-    --muted: #a090b0; /* Lavender-tinted grey for muted text */
+    --muted: #a090b0;
     --card-radius: 12px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,12 +21,86 @@
     font-family: 'DM Sans', sans-serif; 
     color: var(--text); 
     min-height: 100vh; 
-    
-    /* Cosmic Background Setup */
     background: url('background.png') no-repeat center center fixed;
     background-size: cover;
     background-color: var(--bg);
   }
+
+  /* ─── AUTH MODAL ─────────────────────────────── */
+  #auth-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(9, 0, 20, 0.85);
+    backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+  }
+  #auth-overlay.visible { display: flex; }
+  #auth-box {
+    background: rgba(15, 0, 30, 0.98);
+    border: 1px solid rgba(226, 51, 255, 0.35);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    width: 340px;
+    position: relative;
+    box-shadow: 0 0 60px rgba(226, 51, 255, 0.12);
+  }
+  #auth-box h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  #auth-box p { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+  #auth-pw {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(226,51,255,0.25);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 10px 14px;
+    width: 100%;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  #auth-pw:focus { border-color: var(--accent); }
+  #auth-error { font-size: 12px; color: #f08080; min-height: 18px; margin-bottom: 10px; }
+  #auth-submit {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    background: var(--accent); color: #090014;
+    border: none; border-radius: 10px;
+    padding: 10px 0; width: 100%;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  #auth-submit:hover { opacity: 0.85; }
+  #auth-cancel {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 500;
+    background: none; color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 0;
+    width: 100%; cursor: pointer;
+    margin-top: 8px; transition: all 0.15s;
+  }
+  #auth-cancel:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .lock-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+
+  /* ─── LOCKED BADGE on edit buttons ───────────── */
+  .admin-btn { position: relative; }
+  .admin-btn::after {
+    content: '🔒';
+    font-size: 10px;
+    position: absolute;
+    top: -4px; right: -4px;
+    background: rgba(9,0,20,0.9);
+    border-radius: 50%;
+    padding: 1px;
+    line-height: 1;
+  }
+  .admin-btn.unlocked::after { content: ''; display: none; }
 
   .hero {
     position: relative; overflow: hidden;
@@ -58,7 +132,6 @@
   .tab-panel { display:none; }
   .tab-panel.active { display:block; }
 
-  /* FILTER */
   .filter-section { margin-bottom:2rem; }
   .filter-label { font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:10px; }
   .filters { display:flex; flex-wrap:wrap; gap:8px; }
@@ -66,7 +139,6 @@
   .filter-btn:hover { border-color:rgba(255,255,255,0.18); color:var(--text); }
   .filter-btn.active { background:var(--accent); border-color:var(--accent); color:#090014; font-weight:600; }
 
-  /* MATCH CARDS */
   .day-group { margin-bottom:2rem; }
   .day-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
   .day-name { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:0.05em; color:var(--text); }
@@ -103,7 +175,6 @@
   .clear-btn { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; padding:7px 14px; border-radius:8px; background:none; color:var(--muted); border:1px solid var(--border); cursor:pointer; transition:all 0.15s; }
   .clear-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.18); }
 
-  /* TEAM COLORS */
   .t-dg  { background:rgba(228,77,77,0.12);   color:#f08080; }
   .t-lpc { background:rgba(55,138,221,0.12);  color:#6fb3f0; }
   .t-pc  { background:rgba(212,83,126,0.12);  color:#e890b2; }
@@ -113,7 +184,6 @@
   .t-nfx { background:rgba(226,75,74,0.12);   color:#e88180; }
   .t-mtn { background:rgba(127,119,221,0.12); color:#b0acec; }
 
-  /* EXPORT BAR */
   .export-bar { display:flex; align-items:center; gap:10px; margin-bottom:1.5rem; flex-wrap:wrap; }
   .export-label { font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-right:4px; }
   .export-btn { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; padding:7px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:7px; }
@@ -121,7 +191,6 @@
   .export-btn.loading { opacity:0.6; pointer-events:none; }
   .export-btn .eicon { font-size:14px; }
 
-  /* LEADERBOARD */
   .lb-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:8px; }
   .lb-title { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--text); letter-spacing:0.05em; }
   .lb-note { font-size:12px; color:var(--muted); }
@@ -156,69 +225,28 @@
   .lb-pts { text-align:right; padding:14px 16px 14px 6px; font-family:'Bebas Neue',sans-serif; font-size:1.5rem; color:var(--accent); }
   .lb-row.r1 .lb-pts { font-size:1.8rem; }
 
-  /* PLAYERS & HEROES TAB */
   .players-top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:1.2rem; }
   .players-title { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--text); letter-spacing:0.05em; }
   .players-controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .match-select {
-    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
-    background:var(--surface2); border:1px solid var(--border);
-    color:var(--text); border-radius:8px; padding:7px 12px;
-    cursor:pointer; appearance:none; -webkit-appearance:none;
-    max-width: 200px;
-  }
+  .match-select { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 12px; cursor:pointer; appearance:none; -webkit-appearance:none; max-width: 200px; }
   .match-select optgroup { font-weight: 700; color: var(--accent); }
   .match-select option { font-weight: 500; color: var(--text); }
   .match-select:focus { outline:none; border-color:var(--accent); }
-  .sort-select {
-    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500;
-    background:var(--surface2); border:1px solid var(--border);
-    color:var(--text); border-radius:8px; padding:7px 12px;
-    cursor:pointer; appearance:none; -webkit-appearance:none;
-  }
+  .sort-select { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 12px; cursor:pointer; appearance:none; -webkit-appearance:none; }
   .sort-select:focus { outline:none; border-color:var(--accent); }
-  .sort-dir-btn {
-    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
-    background:var(--surface2); border:1px solid var(--border);
-    color:var(--text); border-radius:8px; padding:7px 12px;
-    cursor:pointer; transition:all 0.15s; min-width:38px; text-align:center;
-  }
+  .sort-dir-btn { font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:7px 12px; cursor:pointer; transition:all 0.15s; min-width:38px; text-align:center; }
   .sort-dir-btn:hover { border-color:rgba(226,51,255,0.4); color:var(--accent); }
-
-  /* SEARCH INPUT */
-  .search-input {
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text); border-radius: 8px; padding: 7px 12px;
-    outline: none; width: 140px; transition: border-color 0.2s;
-  }
+  .search-input { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 12px; outline: none; width: 140px; transition: border-color 0.2s; }
   .search-input:focus { border-color: var(--accent); }
   .hero-name-cell { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text); }
   .hero-icon { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; }
 
-  /* TEAM TABLES */
-  .team-table-header {
-    font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--text);
-    padding: 10px 16px; background: var(--surface2);
-    display: flex; align-items: center; gap: 10px;
-    border: 1px solid var(--border); border-bottom: none;
-    border-radius: var(--card-radius) var(--card-radius) 0 0;
-    margin-top: 2rem; letter-spacing: 0.05em;
-  }
+  .team-table-header { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--text); padding: 10px 16px; background: var(--surface2); display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-bottom: none; border-radius: var(--card-radius) var(--card-radius) 0 0; margin-top: 2rem; letter-spacing: 0.05em; }
   .team-table-header:first-child { margin-top: 0; }
-  .team-table-wrap {
-    overflow-x: auto; background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 0 0 var(--card-radius) var(--card-radius);
-    margin-bottom: 2rem;
-  }
+  .team-table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 0 0 var(--card-radius) var(--card-radius); margin-bottom: 2rem; }
   .players-table { width:100%; border-collapse:collapse; min-width:1050px; }
   .players-table thead tr { background:rgba(255,255,255,0.02); }
-  .players-table th {
-    font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
-    color:var(--muted); padding:10px 12px; text-align:right; white-space:nowrap;
-    border-bottom:1px solid var(--border); cursor:pointer; user-select:none; transition:color 0.15s;
-  }
+  .players-table th { font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding:10px 12px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--border); cursor:pointer; user-select:none; transition:color 0.15s; }
   .players-table th:first-child { text-align:center; padding-left:16px; width:40px; }
   .players-table th:nth-child(2) { text-align:left; }
   .players-table th:nth-child(3) { text-align:left; }
@@ -250,7 +278,6 @@
   .td-lord   { color:#ba7517; font-weight:600; }
   .td-ck    { color:#e233ff; font-weight:600; }
 
-  /* Hero specific roles */
   .h-role-tank { color: #6fb3f0; font-weight:500; font-size:12px;}
   .h-role-fighter { color: #e88180; font-weight:500; font-size:12px;}
   .h-role-assassin { color: #b0acec; font-weight:500; font-size:12px;}
@@ -258,28 +285,15 @@
   .h-role-marksman { color: #efb952; font-weight:500; font-size:12px;}
   .h-role-support { color: #5ecfaa; font-weight:500; font-size:12px;}
 
-  .stat-input {
-    font-family:'DM Sans',sans-serif; font-size:12px;
-    background:var(--surface); border:1px solid rgba(255,255,255,0.1);
-    color:var(--text); border-radius:6px; padding:4px 7px;
-    width:56px; text-align:right;
-  }
+  .stat-input { font-family:'DM Sans',sans-serif; font-size:12px; background:var(--surface); border:1px solid rgba(255,255,255,0.1); color:var(--text); border-radius:6px; padding:4px 7px; width:56px; text-align:right; }
   .stat-input:focus { outline:none; border-color:var(--accent); }
   .stat-input.wide { width: 70px; }
 
-  .edit-toggle-btn {
-    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
-    padding:7px 16px; border-radius:8px; border:1px solid var(--border);
-    background:var(--surface2); color:var(--text); cursor:pointer; transition:all 0.2s;
-  }
+  .edit-toggle-btn { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; padding:7px 16px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); cursor:pointer; transition:all 0.2s; }
   .edit-toggle-btn.active { background:rgba(226,51,255,0.12); border-color:rgba(226,51,255,0.4); color:var(--accent); }
   .edit-toggle-btn:hover { border-color:rgba(226,51,255,0.3); color:var(--accent); }
 
-  .save-stats-btn {
-    font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
-    padding:7px 18px; border-radius:8px;
-    background:var(--accent); color:#090014; border:none; cursor:pointer; transition:opacity 0.15s;
-  }
+  .save-stats-btn { font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; padding:7px 18px; border-radius:8px; background:var(--accent); color:#090014; border:none; cursor:pointer; transition:opacity 0.15s; }
   .save-stats-btn:hover { opacity:0.85; }
 
   #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(60px); background:#1c1c27; border:1px solid rgba(226,51,255,0.3); color:var(--accent); font-size:13px; font-weight:500; padding:10px 20px; border-radius:999px; transition:transform 0.3s ease; z-index:9999; pointer-events:none; white-space:nowrap; }
@@ -288,7 +302,6 @@
   .empty { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:15px; }
   .empty .ei { display:block; font-size:2.5rem; margin-bottom:8px; }
 
-  /* MVP TAB */
   .mvp-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem; }
   .mvp-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--card-radius); padding:1.5rem; position:relative; overflow:hidden; transition:transform 0.2s; }
   .mvp-card:hover { transform:translateY(-3px); border-color:rgba(226,51,255,0.3); }
@@ -310,7 +323,6 @@
   .mvp-stat-lbl { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:4px; }
   .mvp-stat-val { font-size:14px; font-weight:600; color:var(--text); }
 
-  /* AWARDS TAB */
   .award-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:1.5rem; }
   .award-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--card-radius); padding:1.5rem; display:flex; flex-direction:column; gap:8px; transition:transform 0.2s; }
   .award-card:hover { transform:translateY(-3px); border-color:rgba(226,51,255,0.3); background:linear-gradient(180deg, rgba(226,51,255,0.03) 0%, transparent 100%); }
@@ -321,12 +333,7 @@
   .award-pname { font-size:14px; font-weight:600; color:var(--text); display:flex; flex-direction:column; }
   .award-pteam { font-size:11px; font-weight:500; color:var(--muted); margin-top:2px; }
 
-  /* FOOTER */
-  .footer-action {
-    max-width: 1160px; margin: 0 auto 3rem; padding: 1rem 1.5rem;
-    display: flex; justify-content: flex-end;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
+  .footer-action { max-width: 1160px; margin: 0 auto 3rem; padding: 1rem 1.5rem; display: flex; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); }
 
   ::-webkit-scrollbar { width:6px; height:6px; }
   ::-webkit-scrollbar-track { background:var(--bg); }
@@ -335,6 +342,19 @@
 </head>
 <body>
 <div id="toast"></div>
+
+<!-- AUTH MODAL -->
+<div id="auth-overlay">
+  <div id="auth-box">
+    <span class="lock-icon">🔐</span>
+    <h2>Admin Access</h2>
+    <p>Enter the password to enable editing.</p>
+    <input type="password" id="auth-pw" placeholder="Password" onkeydown="if(event.key==='Enter')submitAuth()">
+    <div id="auth-error"></div>
+    <button id="auth-submit" onclick="submitAuth()">Unlock</button>
+    <button id="auth-cancel" onclick="closeAuth()">Cancel</button>
+  </div>
+</div>
 
 <div class="hero">
   <div class="hero-inner">
@@ -424,7 +444,7 @@
           <option value="ck">Sort: Consec. Kills</option>
         </select>
         <button class="sort-dir-btn" id="sort-dir-btn" onclick="toggleSortDir()">↑</button>
-        <button class="edit-toggle-btn" id="edit-toggle" onclick="toggleEdit()">✏️ Edit Game Stats</button>
+        <button class="edit-toggle-btn admin-btn" id="edit-toggle" onclick="requireAuth(toggleEdit)">✏️ Edit Game Stats</button>
         <button class="save-stats-btn" onclick="saveStats()" style="display:none" id="save-stats-btn">Save</button>
       </div>
     </div>
@@ -443,7 +463,7 @@
         <input type="text" id="hero-search" class="search-input" placeholder="Search hero..." oninput="renderHeroes()">
         <div style="display:flex; align-items:center; gap:8px; background:var(--surface2); padding:5px 12px; border-radius:8px; border:1px solid var(--border);">
            <span style="font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Overall Games:</span>
-           <input type="number" id="overall-games-input" class="stat-input wide" style="font-weight:bold; font-size:14px; background:var(--surface); color:var(--accent);" value="0" onchange="saveOverallGames()">
+           <input type="number" id="overall-games-input" class="stat-input wide" style="font-weight:bold; font-size:14px; background:var(--surface); color:var(--accent);" value="0" onchange="requireAuthInline(saveOverallGames)">
         </div>
         <select class="sort-select" id="hero-role-filter" onchange="renderHeroes()">
           <option value="All">All Roles</option>
@@ -467,7 +487,7 @@
            <option value="wr">Sort: Win Rate</option>
         </select>
         <button class="sort-dir-btn" id="hero-sort-dir-btn" onclick="toggleHeroSortDir()">↓</button>
-        <button class="edit-toggle-btn" id="hero-edit-toggle" onclick="toggleHeroEdit()">✏️ Edit Hero Stats</button>
+        <button class="edit-toggle-btn admin-btn" id="hero-edit-toggle" onclick="requireAuth(toggleHeroEdit)">✏️ Edit Hero Stats</button>
         <button class="save-stats-btn" onclick="saveHeroStats()" style="display:none" id="hero-save-stats-btn">Save</button>
       </div>
     </div>
@@ -478,8 +498,7 @@
     </div>
     <div class="team-table-wrap">
       <table class="players-table" id="heroes-table">
-        <thead id="heroes-thead">
-           </thead>
+        <thead id="heroes-thead"></thead>
         <tbody id="heroes-tbody"></tbody>
       </table>
     </div>
@@ -513,13 +532,78 @@
 </div>
 
 <div class="footer-action">
-  <button class="reset-btn" onclick="resetAllData()">⚠️ Reset All Data to 0</button>
+  <button class="reset-btn admin-btn" onclick="requireAuth(resetAllData)">⚠️ Reset All Data to 0</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+/* ─── AUTH SYSTEM ────────────────────────────────── */
+// Simple obfuscated password check (works on file:// without crypto.subtle)
+function _chk(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = Math.imul(31, h) + s.charCodeAt(i) | 0; }
+  return h;
+}
+// hash of "ppls1imbamen"
+const ADMIN_HASH = _chk("ppls1imbamen");
+let adminUnlocked = false;
+let pendingAuthCallback = null;
+
+function requireAuth(callback) {
+  if (adminUnlocked) { callback(); return; }
+  pendingAuthCallback = callback;
+  document.getElementById('auth-overlay').classList.add('visible');
+  document.getElementById('auth-pw').value = '';
+  document.getElementById('auth-error').textContent = '';
+  setTimeout(()=>document.getElementById('auth-pw').focus(), 100);
+}
+
+function requireAuthInline(callback) {
+  if (adminUnlocked) { callback(); return; }
+  pendingAuthCallback = callback;
+  document.getElementById('auth-overlay').classList.add('visible');
+  document.getElementById('auth-pw').value = '';
+  document.getElementById('auth-error').textContent = '';
+  setTimeout(()=>document.getElementById('auth-pw').focus(), 100);
+}
+
+function submitAuth() {
+  const pw = document.getElementById('auth-pw').value;
+  if (_chk(pw) === ADMIN_HASH) {
+    adminUnlocked = true;
+    document.getElementById('auth-overlay').classList.remove('visible');
+    document.querySelectorAll('.admin-btn').forEach(b=>b.classList.add('unlocked'));
+    showToast('Admin access granted');
+    if (pendingAuthCallback) { pendingAuthCallback(); pendingAuthCallback = null; }
+  } else {
+    document.getElementById('auth-error').textContent = 'Incorrect password. Try again.';
+    document.getElementById('auth-pw').select();
+  }
+}
+
+function closeAuth() {
+  document.getElementById('auth-overlay').classList.remove('visible');
+  pendingAuthCallback = null;
+  // Restore overall-games input value if auth was cancelled
+  document.getElementById('overall-games-input').value = overallGames;
+}
+
+// Score entry buttons on schedule also need auth
+function guardedToggleEntry(id) {
+  if (adminUnlocked) { toggleEntry(id); return; }
+  requireAuth(() => toggleEntry(id));
+}
+function guardedSaveResult(id) {
+  if (adminUnlocked) { saveResult(id); return; }
+  requireAuth(() => saveResult(id));
+}
+function guardedClearResult(id) {
+  if (adminUnlocked) { clearResult(id); return; }
+  requireAuth(() => clearResult(id));
+}
+
 /* ─── DATA ─────────────────────────────────────── */
 const TEAMS_LIST = ["Devil Guardians","LPC Boys","Pride Chicken","GGG","Setzu","Puro Players","Netflix","Moon-tanga"];
 const TEAM_CLASS = {"Devil Guardians":"t-dg","LPC Boys":"t-lpc","Pride Chicken":"t-pc","GGG":"t-ggg","Setzu":"t-stz","Puro Players":"t-pp","Netflix":"t-nfx","Moon-tanga":"t-mtn"};
@@ -534,7 +618,7 @@ const ROSTER = {
   "Setzu":           ["Kozuki","Oden.","Pelumenu","EDJAR","cocolemon","meanaa"],
   "Puro Players":    ["Issᴇɪ","AMOR FATI","être le pire","Scrotum","Jeyms","MD"],
   "Netflix":         ["Mocha","Kei Uzuki","Taro","Xrianca","Uujeh","DIMO NABA AKO MAHAL?"],
-  "Moon-tanga":      ["Mugichan","Moon","Hysomai","Shanks","arahcses","katol"]
+  "Moon-tanga":      ["Mugichan","Moon","Hysomai","Shanks","arahcses","katol","Sight"]
 };
 
 const SCHEDULE = [
@@ -555,7 +639,7 @@ const HERO_ROLES = {
   "Angela":"Support","Argus":"Fighter","Arlott":"Fighter/Assassin","Atlas":"Tank","Aulus":"Fighter/Tank","Aurora":"Mage",
   "Badang":"Fighter","Balmond":"Fighter","Bane":"Fighter/Mage","Barats":"Tank/Fighter","Barls":"Marksman/Fighter",
   "Baxia":"Tank","Beatrix":"Marksman","Belerick":"Tank","Benedetta":"Assassin/Fighter","Brody":"Marksman","Bruno":"Marksman",
-  "Carmilla":"Support/Tank","Cecilion":"Mage","Chang’e":"Mage","Chip":"Support/Tank","Chou":"Fighter","Cici":"Fighter",
+  "Carmilla":"Support/Tank","Cecilion":"Mage","Chang'e":"Mage","Chip":"Support/Tank","Chou":"Fighter","Cici":"Fighter",
   "Claude":"Marksman","Clint":"Marksman","Cyclops":"Mage","Diggie":"Support","Dyrroth":"Fighter",
   "Edith":"Tank/Marksman","Esmeralda":"Tank/Mage","Estes":"Support","Eudora":"Mage",
   "Fanny":"Assassin","Faramis":"Support/Mage","Floryn":"Support","Franco":"Tank","Fredrinn":"Tank/Fighter","Freya":"Fighter",
@@ -581,7 +665,6 @@ const HERO_ROLES = {
 };
 const HERO_LIST = Object.keys(HERO_ROLES).sort();
 
-
 /* ─── STATE ─────────────────────────────────────── */
 let results = {};
 let matchPlayerStats = {}; 
@@ -590,7 +673,6 @@ let sortCol = 'name';
 let sortAsc = true;
 let allPlayerRowsData = [];
 
-// Hero State
 let heroStats = {};
 let overallGames = 0;
 let heroEditMode = false;
@@ -598,7 +680,6 @@ let heroSortCol = 'name';
 let heroSortAsc = true;
 let allHeroRowsData = [];
 
-// Storage Keys (v4 for fresh state)
 const STORAGE_KEY_RESULTS = 'ppl_results_v4';
 const STORAGE_KEY_STATS = 'ppl_match_player_stats_v4';
 const STORAGE_KEY_HEROES = 'ppl_hero_stats_v4';
@@ -632,10 +713,8 @@ function resetAllData() {
     heroStats = {};
     overallGames = 0;
     initHeroStats();
-    
     document.getElementById('overall-games-input').value = 0;
     document.getElementById('hero-search').value = "";
-    
     persist();
     persistStats();
     persistHeroes();
@@ -667,7 +746,6 @@ function teamTag(name){
 }
 function numFmt(n){ if(n>=1000) return (n/1000).toFixed(1)+'k'; return String(n); }
 
-// Handles specific game IDs like m01_g1
 function getMatchById(id) {
   const baseId = id.split('_')[0];
   for(let day of SCHEDULE) {
@@ -683,27 +761,17 @@ function onSortSelectChange() {
   const val = document.getElementById('sort-col').value;
   if (sortCol !== val) {
     sortCol = val;
-    sortAsc = (val === 'name'); // Name defaults to Asc, numbers to Desc
+    sortAsc = (val === 'name');
     renderPlayers();
   }
 }
-
 function setSortCol(col){
-  if(sortCol===col){ 
-    sortAsc=!sortAsc; 
-  } else { 
-    sortCol=col; 
-    sortAsc=(col==='name'); 
-  }
+  if(sortCol===col){ sortAsc=!sortAsc; } else { sortCol=col; sortAsc=(col==='name'); }
   const sel = document.getElementById('sort-col');
   if(sel) sel.value = col;
   renderPlayers();
 }
-
-function toggleSortDir(){ 
-  sortAsc=!sortAsc; 
-  renderPlayers(); 
-}
+function toggleSortDir(){ sortAsc=!sortAsc; renderPlayers(); }
 
 /* ─── EDIT MODE ─────────────────────────────────── */
 function toggleEdit(){
@@ -720,9 +788,7 @@ function saveStats(){
   if(editMode){
     const mId = document.getElementById('match-select').value;
     if (mId === 'ALL') return;
-
     if (!matchPlayerStats[mId]) matchPlayerStats[mId] = {};
-
     document.querySelectorAll('#players-tables-container .stat-input').forEach(inp=>{
       const key = inp.dataset.key;
       const field = inp.dataset.field;
@@ -784,7 +850,6 @@ function renderPlayers(){
         let s = {kill:0,death:0,assist:0,grade:0,hdmg:0,tdmg:0,gpm:0,dtaken:0,ck:0,tfp:0,turtle:0,lord:0};
         let gamesWithStats = 0;
         let gpmSum = 0, tfpSum = 0, gradeSum = 0;
-
         Object.keys(matchPlayerStats).forEach(gameId => {
           const m = getMatchById(gameId);
           if (m && (m.a === team || m.b === team)) {
@@ -799,19 +864,17 @@ function renderPlayers(){
              }
           }
         });
-
         if (gamesWithStats > 0) {
           s.gpm = Math.round(gpmSum / gamesWithStats);
           s.tfp = tfpSum / gamesWithStats;
           s.grade = gradeSum / gamesWithStats;
         }
-
         const kda = parseFloat(calcKDA(s.kill, s.death, s.assist));
         rows.push({key, team, name: p, gp: gamesWithStats, kda, ...s});
       });
     });
   } else {
-    const match = getMatchById(mId); // e.g. m01_g1 returns match obj
+    const match = getMatchById(mId);
     if (match) {
       [match.a, match.b].forEach(team => {
         const players = ROSTER[team];
@@ -828,7 +891,6 @@ function renderPlayers(){
   }
 
   allPlayerRowsData = rows;
-
   const container = document.getElementById('players-tables-container');
   if(!rows.length){ container.innerHTML = `<div class="empty"><span class="ei">🔍</span>No players found.</div>`; return; }
 
@@ -855,42 +917,31 @@ function renderPlayers(){
   TEAMS_LIST.forEach(team => {
     let teamRows = [...rows].filter(r => r.team === team);
     if (!teamRows.length) return;
-
-    // Apply Sorting per team table
     teamRows.sort((a,b)=>{
       let av=a[sortCol], bv=b[sortCol];
       if (av === undefined) av = 0;
       if (bv === undefined) bv = 0;
-      
-      if(sortCol==='name') {
-        return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-      } else {
-        return sortAsc ? av - bv : bv - av;
-      }
+      if(sortCol==='name') { return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av); }
+      else { return sortAsc ? av - bv : bv - av; }
     });
 
     const bg = TEAM_BG[team] || 'transparent';
     const tc = TEAM_DOT_COLOR[team] || '#888';
-    
     html += `<div class="team-table-header">
       <span class="td-team-badge" style="background:${bg};color:${tc}">
         <span class="td-dot" style="background:${tc}"></span>${team}
       </span>
     </div>`;
-    
     html += `<div class="team-table-wrap"><table class="players-table">`;
     html += theadHtml;
     html += `<tbody>`;
-
     html += teamRows.map((r,i)=>{
       const cell=(field,val,cls,fmt)=> editMode
         ? `<td><input class="stat-input" data-key="${r.key}" data-field="${field}" value="${val}" type="number" min="0" step="${field==='tfp'||field==='grade'?'0.1':'1'}"></td>`
         : `<td class="${cls}">${fmt||val}</td>`;
-
       const tfpFmt=(r.tfp||0).toFixed(1)+'%';
       const kdaDisp=r.kda.toFixed(2);
       const gradeDisp=(r.grade||0).toFixed(1);
-
       return `<tr>
         <td>${i+1}</td>
         <td>${r.name}</td>
@@ -910,15 +961,12 @@ function renderPlayers(){
         ${cell('ck',r.ck,'td-ck')}
       </tr>`;
     }).join('');
-
     html += `</tbody></table></div>`;
   });
-
   container.innerHTML = html;
 }
 
 /* ─── HERO STATS RENDER ─────────────────────────── */
-
 function saveOverallGames() {
   const val = parseInt(document.getElementById('overall-games-input').value) || 0;
   overallGames = val;
@@ -934,23 +982,13 @@ function onHeroSortChange() {
     renderHeroes();
   }
 }
-
 function setHeroSortCol(col){
-  if(heroSortCol===col){ 
-    heroSortAsc=!heroSortAsc; 
-  } else { 
-    heroSortCol=col; 
-    heroSortAsc=(col==='name'||col==='role'); 
-  }
+  if(heroSortCol===col){ heroSortAsc=!heroSortAsc; } else { heroSortCol=col; heroSortAsc=(col==='name'||col==='role'); }
   const sel = document.getElementById('hero-sort-col');
   if(sel) sel.value = col;
   renderHeroes();
 }
-
-function toggleHeroSortDir(){ 
-  heroSortAsc=!heroSortAsc; 
-  renderHeroes(); 
-}
+function toggleHeroSortDir(){ heroSortAsc=!heroSortAsc; renderHeroes(); }
 
 function toggleHeroEdit(){
   heroEditMode=!heroEditMode;
@@ -967,9 +1005,7 @@ function saveHeroStats(){
     document.querySelectorAll('#heroes-tbody .stat-input').forEach(inp=>{
       const key = inp.dataset.key;
       const field = inp.dataset.field;
-      if (heroStats[key]) {
-        heroStats[key][field]=parseInt(inp.value)||0;
-      }
+      if (heroStats[key]) { heroStats[key][field]=parseInt(inp.value)||0; }
     });
     persistHeroes();
     showToast('Hero Stats saved!');
@@ -988,45 +1024,30 @@ function renderHeroes() {
   document.getElementById('overall-games-input').value = overallGames;
   const dirBtn = document.getElementById('hero-sort-dir-btn');
   dirBtn.textContent = heroSortAsc ? '↑' : '↓';
-  
   const roleFilter = document.getElementById('hero-role-filter').value;
   const searchQuery = (document.getElementById('hero-search').value || '').toLowerCase();
-  
   let rows = [];
   HERO_LIST.forEach(h => {
     if (searchQuery && !h.toLowerCase().includes(searchQuery)) return;
-
     const fullRole = HERO_ROLES[h] || "";
     const primaryRole = fullRole.split('/')[0];
-    
     if (roleFilter !== "All" && !fullRole.includes(roleFilter)) return;
-    
     const s = heroStats[h] || { picks:0, bans:0, wins:0, losses:0 };
-    
     const pr = overallGames > 0 ? (s.picks / overallGames) * 100 : 0;
     const br = overallGames > 0 ? (s.bans / overallGames) * 100 : 0;
     const cr = overallGames > 0 ? ((s.picks + s.bans) / overallGames) * 100 : 0;
     const totalMatches = s.wins + s.losses;
     const wr = totalMatches > 0 ? (s.wins / totalMatches) * 100 : 0;
-    
-    rows.push({
-      name: h, role: fullRole, primaryRole, ...s, pr, br, cr, wr
-    });
+    rows.push({ name: h, role: fullRole, primaryRole, ...s, pr, br, cr, wr });
   });
-  
   rows.sort((a,b)=>{
     let av=a[heroSortCol], bv=b[heroSortCol];
     if (av === undefined) av = 0;
     if (bv === undefined) bv = 0;
-    if(heroSortCol==='name' || heroSortCol==='role') {
-      return heroSortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
-    } else {
-      return heroSortAsc ? av - bv : bv - av;
-    }
+    if(heroSortCol==='name' || heroSortCol==='role') { return heroSortAsc ? av.localeCompare(bv) : bv.localeCompare(av); }
+    else { return heroSortAsc ? av - bv : bv - av; }
   });
-
   allHeroRowsData = rows;
-
   const thead = document.getElementById('heroes-thead');
   thead.innerHTML = `<tr>
     ${hth('rank', '#', 'center')}
@@ -1041,26 +1062,20 @@ function renderHeroes() {
     ${hth('cr', 'Contest Rate')}
     ${hth('wr', 'Win Rate')}
   </tr>`;
-
   const tbody = document.getElementById('heroes-tbody');
   if(!rows.length){ tbody.innerHTML = `<tr><td colspan="11" class="empty"><span class="ei">🔍</span>No heroes match the filter.</td></tr>`; return; }
-
   tbody.innerHTML = rows.map((r,i)=>{
     const cell=(field,val,cls,fmt)=> heroEditMode
       ? `<td><input class="stat-input" data-key="${r.name}" data-field="${field}" value="${val}" type="number" min="0"></td>`
       : `<td class="${cls}">${fmt||val}</td>`;
-
     const prDisp = r.pr.toFixed(1) + '%';
     const brDisp = r.br.toFixed(1) + '%';
     const crDisp = r.cr.toFixed(1) + '%';
     const wrDisp = r.wr.toFixed(1) + '%';
-    
     const roleCls = 'h-role-' + r.primaryRole.toLowerCase();
-    
     const cleanFileName = r.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
     const iconUrl = `heroes/${cleanFileName}.png`; 
     const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=1c1c27&color=f0f0f5&size=28&rounded=true&font-size=0.4&bold=true`;
-
     return `<tr>
       <td>${i+1}</td>
       <td>
@@ -1082,20 +1097,15 @@ function renderHeroes() {
   }).join('');
 }
 
-
 /* ─── MVP RENDER ───────────────────────────────── */
 let mvpDataGlobal = [];
 function renderMVP() {
   const container = document.getElementById('mvp-board');
   let mvpData = [];
-
   Object.entries(ROSTER).forEach(([team, players]) => {
     players.forEach(p => {
       const key = team + '|' + p;
-      let kill = 0, death = 0, assist = 0;
-      let gradeSum = 0, tfpSum = 0;
-      let gamesWithStats = 0;
-
+      let kill = 0, death = 0, assist = 0, gradeSum = 0, tfpSum = 0, gamesWithStats = 0;
       Object.keys(matchPlayerStats).forEach(gameId => {
         const m = getMatchById(gameId);
         if (m && (m.a === team || m.b === team)) {
@@ -1107,31 +1117,24 @@ function renderMVP() {
            }
         }
       });
-
       if (gamesWithStats > 0) {
         const kda = parseFloat(calcKDA(kill, death, assist));
         const avgGrade = gradeSum / gamesWithStats;
         const avgTfp = tfpSum / gamesWithStats;
-
         const kdaScore = Math.min((kda / 10), 1) * 30;
         const gradeScore = Math.min((avgGrade / 10), 1) * 40;
         const tfpScore = Math.min((avgTfp / 100), 1) * 30;
         const totalScore = kdaScore + gradeScore + tfpScore;
-
         mvpData.push({ team, name: p, kda, avgGrade, avgTfp, totalScore, games: gamesWithStats });
       }
     });
   });
-
   if (mvpData.length === 0) {
     container.innerHTML = `<div class="empty" style="grid-column: 1 / -1;"><span class="ei">🏅</span>No game stats available yet.</div>`;
-    mvpDataGlobal = [];
-    return;
+    mvpDataGlobal = []; return;
   }
-
   mvpData.sort((a, b) => b.totalScore - a.totalScore);
-  mvpDataGlobal = mvpData; 
-
+  mvpDataGlobal = mvpData;
   container.innerHTML = mvpData.map((m, i) => {
     const dot=TEAM_DOT_COLOR[m.team]||'#888';
     const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
@@ -1139,25 +1142,13 @@ function renderMVP() {
       <div class="mvp-rank">#${i + 1}</div>
       <div class="mvp-header">
         <span class="mvp-dot" style="background:${dot}"></span>
-        <div class="mvp-info">
-          <h3>${m.name}</h3>
-          <p>${m.team}</p>
-        </div>
+        <div class="mvp-info"><h3>${m.name}</h3><p>${m.team}</p></div>
       </div>
       <div class="mvp-score">${m.totalScore.toFixed(1)}<span>% SCORE</span></div>
       <div class="mvp-stats">
-        <div class="mvp-stat">
-          <div class="mvp-stat-lbl">KDA (30%)</div>
-          <div class="mvp-stat-val">${m.kda.toFixed(2)}</div>
-        </div>
-        <div class="mvp-stat">
-          <div class="mvp-stat-lbl">Grade (40%)</div>
-          <div class="mvp-stat-val">${m.avgGrade.toFixed(1)}</div>
-        </div>
-        <div class="mvp-stat">
-          <div class="mvp-stat-lbl">TF% (30%)</div>
-          <div class="mvp-stat-val">${m.avgTfp.toFixed(1)}%</div>
-        </div>
+        <div class="mvp-stat"><div class="mvp-stat-lbl">KDA (30%)</div><div class="mvp-stat-val">${m.kda.toFixed(2)}</div></div>
+        <div class="mvp-stat"><div class="mvp-stat-lbl">Grade (40%)</div><div class="mvp-stat-val">${m.avgGrade.toFixed(1)}</div></div>
+        <div class="mvp-stat"><div class="mvp-stat-lbl">TF% (30%)</div><div class="mvp-stat-val">${m.avgTfp.toFixed(1)}%</div></div>
       </div>
     </div>`;
   }).join('');
@@ -1168,21 +1159,12 @@ let awardsDataGlobal = [];
 function renderAwards() {
   const container = document.getElementById('awards-board');
   let pStats = {};
-
   Object.entries(ROSTER).forEach(([team, players]) => {
     players.forEach(p => {
       pStats[team+'|'+p] = { team, name: p, gp: 0, k: 0, d: 0, a: 0, hdmg: 0, tdmg: 0, gpm: 0, dtaken: 0, tfp: 0, turtle: 0, lord: 0, ck: 0 };
     });
   });
-
-  let single = {
-    kill: {val: -1, p: null},
-    assist: {val: -1, p: null},
-    kda: {val: -1, p: null},
-    gpm: {val: -1, p: null},
-    ck: {val: -1, p: null}
-  };
-
+  let single = { kill:{val:-1,p:null}, assist:{val:-1,p:null}, kda:{val:-1,p:null}, gpm:{val:-1,p:null}, ck:{val:-1,p:null} };
   Object.keys(matchPlayerStats).forEach(gameId => {
     const m = getMatchById(gameId);
     if(!m) return;
@@ -1190,18 +1172,10 @@ function renderAwards() {
       if (!pStats[key]) return;
       const ms = matchPlayerStats[gameId][key];
       pStats[key].gp++;
-      pStats[key].k += ms.kill||0;
-      pStats[key].d += ms.death||0;
-      pStats[key].a += ms.assist||0;
-      pStats[key].hdmg += ms.hdmg||0;
-      pStats[key].tdmg += ms.tdmg||0;
-      pStats[key].gpm += ms.gpm||0;
-      pStats[key].dtaken += ms.dtaken||0;
-      pStats[key].tfp += ms.tfp||0;
-      pStats[key].turtle += ms.turtle||0;
-      pStats[key].lord += ms.lord||0;
-      pStats[key].ck += ms.ck||0;
-
+      pStats[key].k += ms.kill||0; pStats[key].d += ms.death||0; pStats[key].a += ms.assist||0;
+      pStats[key].hdmg += ms.hdmg||0; pStats[key].tdmg += ms.tdmg||0; pStats[key].gpm += ms.gpm||0;
+      pStats[key].dtaken += ms.dtaken||0; pStats[key].tfp += ms.tfp||0;
+      pStats[key].turtle += ms.turtle||0; pStats[key].lord += ms.lord||0; pStats[key].ck += ms.ck||0;
       if ((ms.kill||0) > single.kill.val) single.kill = {val: ms.kill, p: pStats[key]};
       if ((ms.assist||0) > single.assist.val) single.assist = {val: ms.assist, p: pStats[key]};
       const gameKda = parseFloat(calcKDA(ms.kill||0, ms.death||0, ms.assist||0));
@@ -1210,83 +1184,52 @@ function renderAwards() {
       if ((ms.ck||0) > single.ck.val) single.ck = {val: ms.ck, p: pStats[key]};
     });
   });
-
-  let leaders = {
-    avgKills: {val: -1, p: null},
-    avgAssists: {val: -1, p: null},
-    avgKda: {val: -1, p: null},
-    avgGpm: {val: -1, p: null},
-    sumHdmg: {val: -1, p: null},
-    avgHdmg: {val: -1, p: null},
-    avgTfp: {val: -1, p: null},
-    sumDtaken: {val: -1, p: null},
-    sumTdmg: {val: -1, p: null},
-    sumTurtle: {val: -1, p: null},
-    sumLord: {val: -1, p: null},
-    avgCk: {val: -1, p: null}
-  };
-
+  let leaders = { avgKills:{val:-1,p:null}, avgAssists:{val:-1,p:null}, avgKda:{val:-1,p:null}, avgGpm:{val:-1,p:null}, sumHdmg:{val:-1,p:null}, avgHdmg:{val:-1,p:null}, avgTfp:{val:-1,p:null}, sumDtaken:{val:-1,p:null}, sumTdmg:{val:-1,p:null}, sumTurtle:{val:-1,p:null}, sumLord:{val:-1,p:null}, avgCk:{val:-1,p:null} };
   let anyPlayed = false;
-
   Object.values(pStats).forEach(s => {
     if(s.gp > 0) {
       anyPlayed = true;
-      const avgK = s.k / s.gp;
-      const avgA = s.a / s.gp;
-      const avgKda = parseFloat(calcKDA(s.k, s.d, s.a));
-      const avgGpm = s.gpm / s.gp;
-      const avgHdmg = s.hdmg / s.gp;
-      const avgTfp = s.tfp / s.gp;
-      const avgCk = s.ck / s.gp;
-
-      if(avgK > leaders.avgKills.val) leaders.avgKills = {val: avgK, p: s};
-      if(avgA > leaders.avgAssists.val) leaders.avgAssists = {val: avgA, p: s};
-      if(avgKda > leaders.avgKda.val) leaders.avgKda = {val: avgKda, p: s};
-      if(avgGpm > leaders.avgGpm.val) leaders.avgGpm = {val: avgGpm, p: s};
-      if(s.hdmg > leaders.sumHdmg.val) leaders.sumHdmg = {val: s.hdmg, p: s};
-      if(avgHdmg > leaders.avgHdmg.val) leaders.avgHdmg = {val: avgHdmg, p: s};
-      if(avgTfp > leaders.avgTfp.val) leaders.avgTfp = {val: avgTfp, p: s};
-      if(s.dtaken > leaders.sumDtaken.val) leaders.sumDtaken = {val: s.dtaken, p: s};
-      if(s.tdmg > leaders.sumTdmg.val) leaders.sumTdmg = {val: s.tdmg, p: s};
-      if(s.turtle > leaders.sumTurtle.val) leaders.sumTurtle = {val: s.turtle, p: s};
-      if(s.lord > leaders.sumLord.val) leaders.sumLord = {val: s.lord, p: s};
-      if(avgCk > leaders.avgCk.val) leaders.avgCk = {val: avgCk, p: s};
+      const avgK=s.k/s.gp, avgA=s.a/s.gp, avgKda=parseFloat(calcKDA(s.k,s.d,s.a));
+      const avgGpm=s.gpm/s.gp, avgHdmg=s.hdmg/s.gp, avgTfp=s.tfp/s.gp, avgCk=s.ck/s.gp;
+      if(avgK>leaders.avgKills.val) leaders.avgKills={val:avgK,p:s};
+      if(avgA>leaders.avgAssists.val) leaders.avgAssists={val:avgA,p:s};
+      if(avgKda>leaders.avgKda.val) leaders.avgKda={val:avgKda,p:s};
+      if(avgGpm>leaders.avgGpm.val) leaders.avgGpm={val:avgGpm,p:s};
+      if(s.hdmg>leaders.sumHdmg.val) leaders.sumHdmg={val:s.hdmg,p:s};
+      if(avgHdmg>leaders.avgHdmg.val) leaders.avgHdmg={val:avgHdmg,p:s};
+      if(avgTfp>leaders.avgTfp.val) leaders.avgTfp={val:avgTfp,p:s};
+      if(s.dtaken>leaders.sumDtaken.val) leaders.sumDtaken={val:s.dtaken,p:s};
+      if(s.tdmg>leaders.sumTdmg.val) leaders.sumTdmg={val:s.tdmg,p:s};
+      if(s.turtle>leaders.sumTurtle.val) leaders.sumTurtle={val:s.turtle,p:s};
+      if(s.lord>leaders.sumLord.val) leaders.sumLord={val:s.lord,p:s};
+      if(avgCk>leaders.avgCk.val) leaders.avgCk={val:avgCk,p:s};
     }
   });
-
-  if(!anyPlayed) {
-     container.innerHTML = `<div class="empty" style="grid-column: 1 / -1;"><span class="ei">🏆</span>No stats available for awards.</div>`;
-     awardsDataGlobal = [];
-     return;
-  }
-
+  if(!anyPlayed) { container.innerHTML = `<div class="empty" style="grid-column: 1 / -1;"><span class="ei">🏆</span>No stats available for awards.</div>`; awardsDataGlobal = []; return; }
   const awardsList = [
-     { title: "Highest Kills (Single Game)", val: single.kill.val, p: single.kill.p, fmt: v=>v },
-     { title: "Highest Avg Kills", val: leaders.avgKills.val, p: leaders.avgKills.p, fmt: v=>v.toFixed(1) },
-     { title: "Highest Assists (Single Game)", val: single.assist.val, p: single.assist.p, fmt: v=>v },
-     { title: "Highest Avg Assists", val: leaders.avgAssists.val, p: leaders.avgAssists.p, fmt: v=>v.toFixed(1) },
-     { title: "Highest KDA (Single Game)", val: single.kda.val, p: single.kda.p, fmt: v=>v.toFixed(2) },
-     { title: "Highest Overall KDA", val: leaders.avgKda.val, p: leaders.avgKda.p, fmt: v=>v.toFixed(2) },
-     { title: "Highest GPM (Single Game)", val: single.gpm.val, p: single.gpm.p, fmt: v=>numFmt(v) },
-     { title: "Highest Avg GPM", val: leaders.avgGpm.val, p: leaders.avgGpm.p, fmt: v=>numFmt(Math.round(v)) },
-     { title: "Highest Overall Hero Dmg", val: leaders.sumHdmg.val, p: leaders.sumHdmg.p, fmt: v=>numFmt(v) },
-     { title: "Highest Avg Hero Dmg", val: leaders.avgHdmg.val, p: leaders.avgHdmg.p, fmt: v=>numFmt(Math.round(v)) },
-     { title: "Highest Avg TF Participation", val: leaders.avgTfp.val, p: leaders.avgTfp.p, fmt: v=>v.toFixed(1)+`%` },
-     { title: "Highest Overall Dmg Taken", val: leaders.sumDtaken.val, p: leaders.sumDtaken.p, fmt: v=>numFmt(v) },
-     { title: "Highest Overall Turret Dmg", val: leaders.sumTdmg.val, p: leaders.sumTdmg.p, fmt: v=>numFmt(v) },
-     { title: "Highest Overall Turtle Slayed", val: leaders.sumTurtle.val, p: leaders.sumTurtle.p, fmt: v=>v },
-     { title: "Highest Overall Lord Slayed", val: leaders.sumLord.val, p: leaders.sumLord.p, fmt: v=>v },
-     { title: "Highest Consec. Kills (Single Game)", val: single.ck.val, p: single.ck.p, fmt: v=>v },
-     { title: "Highest Avg Consec. Kills", val: leaders.avgCk.val, p: leaders.avgCk.p, fmt: v=>v.toFixed(1) }
+     { title:"Highest Kills (Single Game)", val:single.kill.val, p:single.kill.p, fmt:v=>v },
+     { title:"Highest Avg Kills", val:leaders.avgKills.val, p:leaders.avgKills.p, fmt:v=>v.toFixed(1) },
+     { title:"Highest Assists (Single Game)", val:single.assist.val, p:single.assist.p, fmt:v=>v },
+     { title:"Highest Avg Assists", val:leaders.avgAssists.val, p:leaders.avgAssists.p, fmt:v=>v.toFixed(1) },
+     { title:"Highest KDA (Single Game)", val:single.kda.val, p:single.kda.p, fmt:v=>v.toFixed(2) },
+     { title:"Highest Overall KDA", val:leaders.avgKda.val, p:leaders.avgKda.p, fmt:v=>v.toFixed(2) },
+     { title:"Highest GPM (Single Game)", val:single.gpm.val, p:single.gpm.p, fmt:v=>numFmt(v) },
+     { title:"Highest Avg GPM", val:leaders.avgGpm.val, p:leaders.avgGpm.p, fmt:v=>numFmt(Math.round(v)) },
+     { title:"Highest Overall Hero Dmg", val:leaders.sumHdmg.val, p:leaders.sumHdmg.p, fmt:v=>numFmt(v) },
+     { title:"Highest Avg Hero Dmg", val:leaders.avgHdmg.val, p:leaders.avgHdmg.p, fmt:v=>numFmt(Math.round(v)) },
+     { title:"Highest Avg TF Participation", val:leaders.avgTfp.val, p:leaders.avgTfp.p, fmt:v=>v.toFixed(1)+'%' },
+     { title:"Highest Overall Dmg Taken", val:leaders.sumDtaken.val, p:leaders.sumDtaken.p, fmt:v=>numFmt(v) },
+     { title:"Highest Overall Turret Dmg", val:leaders.sumTdmg.val, p:leaders.sumTdmg.p, fmt:v=>numFmt(v) },
+     { title:"Highest Overall Turtle Slayed", val:leaders.sumTurtle.val, p:leaders.sumTurtle.p, fmt:v=>v },
+     { title:"Highest Overall Lord Slayed", val:leaders.sumLord.val, p:leaders.sumLord.p, fmt:v=>v },
+     { title:"Highest Consec. Kills (Single Game)", val:single.ck.val, p:single.ck.p, fmt:v=>v },
+     { title:"Highest Avg Consec. Kills", val:leaders.avgCk.val, p:leaders.avgCk.p, fmt:v=>v.toFixed(1) }
   ];
-
   awardsDataGlobal = awardsList;
-
   container.innerHTML = awardsList.map(a => {
     if(!a.p || a.val === -1) return '';
     const dot=TEAM_DOT_COLOR[a.p.team]||'#888';
-    return `
-    <div class="award-card">
+    return `<div class="award-card">
       <div class="award-title">${a.title}</div>
       <div class="award-val">${a.fmt(a.val)}</div>
       <div class="award-player">
@@ -1296,7 +1239,6 @@ function renderAwards() {
     </div>`;
   }).join('');
 }
-
 
 /* ─── SCHEDULE ─────────────────────────────────── */
 let activeFilter="All";
@@ -1323,7 +1265,7 @@ function renderSchedule(){
           <div class="time-pill">${m.t}</div>
           <div class="teams">${teamTag(m.a)}<span class="vs-badge">VS</span>${teamTag(m.b)}</div>
           ${resultChip}
-          <button class="score-toggle${done?" entered":""}" onclick="toggleEntry('${m.id}')">${done?"Edit Series":"+ Score"}</button>
+          <button class="score-toggle${done?" entered":""}" onclick="guardedToggleEntry('${m.id}')">${done?"Edit Series":"+ Score"}</button>
         </div>
         <div class="score-entry${done?" open":""}" id="entry-${m.id}">
           <span class="score-lbl">Series Score:</span>
@@ -1333,8 +1275,8 @@ function renderSchedule(){
           <select class="score-select" id="sb-${m.id}" onchange="checkValid('${m.id}')"><option value="">–</option>${sbOpts}</select>
           <span class="score-team-name">${m.b}</span>
           <div class="entry-actions">
-            <button class="clear-btn" onclick="clearResult('${m.id}')">Clear</button>
-            <button class="save-btn${done?" ready":""}" id="savebtn-${m.id}" onclick="saveResult('${m.id}')">Save</button>
+            <button class="clear-btn" onclick="guardedClearResult('${m.id}')">Clear</button>
+            <button class="save-btn${done?" ready":""}" id="savebtn-${m.id}" onclick="guardedSaveResult('${m.id}')">Save</button>
           </div>
         </div>
       </div>`;
@@ -1402,13 +1344,10 @@ function renderLeaderboard(){
   }).join('');
 }
 
-
 /* ─── EXPORT ────────────────────────────────────── */
-
-// Helper to grab the right element container
 function getExportElement(tab) {
   if(tab === 'players') return document.getElementById('players-tables-container');
-  if(tab === 'heroes') return document.getElementById('tab-heroes'); // Captures the whole tab to avoid horizontal scroll cutoff
+  if(tab === 'heroes') return document.getElementById('tab-heroes');
   if(tab === 'mvp') return document.getElementById('mvp-board');
   if(tab === 'awards') return document.getElementById('awards-board');
   return document.getElementById('leaderboard');
@@ -1416,90 +1355,47 @@ function getExportElement(tab) {
 
 async function exportJPEG(tab){
   const btn = document.getElementById(`btn-jpeg-${tab}`); 
-  btn.classList.add('loading'); 
-  btn.textContent = 'Capturing...';
-  
+  btn.classList.add('loading'); btn.textContent = 'Capturing...';
   try {
     const el = getExportElement(tab);
-    
-    // Using scrollWidth/scrollHeight ensures we capture the full un-cropped element
-    const canvas = await html2canvas(el, {
-      backgroundColor: '#090014',
-      scale: 2,
-      useCORS: true,
-      windowWidth: el.scrollWidth,
-      windowHeight: el.scrollHeight
-    });
-    
+    const canvas = await html2canvas(el, { backgroundColor: '#090014', scale: 2, useCORS: true, windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
     const link = document.createElement('a'); 
     link.download = `PPL_${tab.toUpperCase()}.jpg`;
     link.href = canvas.toDataURL('image/jpeg', 0.95); 
-    link.click(); 
-    showToast('JPEG saved!');
-  } catch(e) {
-    console.error(e);
-    showToast('Export failed');
-  }
-  
-  btn.classList.remove('loading'); 
-  btn.innerHTML = '<span class="eicon">🖼</span> Save JPEG';
+    link.click(); showToast('JPEG saved!');
+  } catch(e) { console.error(e); showToast('Export failed'); }
+  btn.classList.remove('loading'); btn.innerHTML = '<span class="eicon">🖼</span> Save JPEG';
 }
 
 async function exportPDF(tab){
   const btn = document.getElementById(`btn-pdf-${tab}`); 
-  btn.classList.add('loading'); 
-  btn.textContent = 'Generating...';
-  
+  btn.classList.add('loading'); btn.textContent = 'Generating...';
   try {
     const { jsPDF } = window.jspdf;
     const el = getExportElement(tab);
-    
-    const canvas = await html2canvas(el, {
-      backgroundColor: '#090014',
-      scale: 2, 
-      useCORS: true,
-      windowWidth: el.scrollWidth,
-      windowHeight: el.scrollHeight
-    });
-    
+    const canvas = await html2canvas(el, { backgroundColor: '#090014', scale: 2, useCORS: true, windowWidth: el.scrollWidth, windowHeight: el.scrollHeight });
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
-    
-    // Calculate how tall the image will be inside the PDF
     const imgProps = pdf.getImageProperties(imgData);
     const totalHeightMm = (imgProps.height * pdfWidth) / imgProps.width;
-    
-    let heightLeft = totalHeightMm;
-    let position = 0;
-    
-    // Render First Page
-    pdf.setFillColor(9, 0, 20); // #090014 equivalent in RGB
+    let heightLeft = totalHeightMm, position = 0;
+    pdf.setFillColor(9, 0, 20);
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
     pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalHeightMm);
     heightLeft -= pdfHeight;
-    
-    // Render Additional Pages if the content is too long
     while (heightLeft > 0) {
-      position = position - pdfHeight; // Shift the image up
+      position = position - pdfHeight;
       pdf.addPage();
       pdf.setFillColor(9, 0, 20);
       pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
       pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, totalHeightMm);
       heightLeft -= pdfHeight;
     }
-    
-    pdf.save(`PPL_${tab.toUpperCase()}.pdf`);
-    showToast('PDF saved!');
-  } catch(e) {
-    console.error(e);
-    showToast('Export failed');
-  }
-  
-  btn.classList.remove('loading'); 
-  btn.innerHTML = '<span class="eicon">📄</span> Save PDF';
+    pdf.save(`PPL_${tab.toUpperCase()}.pdf`); showToast('PDF saved!');
+  } catch(e) { console.error(e); showToast('Export failed'); }
+  btn.classList.remove('loading'); btn.innerHTML = '<span class="eicon">📄</span> Save PDF';
 }
 
 /* ─── FILTERS ────────────────────────────────────── */
